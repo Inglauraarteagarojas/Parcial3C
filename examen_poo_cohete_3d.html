@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examen POO - Cohete 3D - Meta Quest 3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#0a0e1a;--card:#111827;--card2:#1a2235;--border:#1e3058;--text:#e8edf5;--muted:#6b7fa3;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--amber:#f59e0b;--purple:#a855f7;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);}
+
+/* REGISTRO */
+.reg-overlay{position:fixed;inset:0;background:rgba(4,8,20,.95);z-index:999;display:flex;align-items:center;justify-content:center;}
+.reg-overlay.hide{display:none;}
+.reg-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.2rem 2rem;width:380px;max-width:92vw;}
+.reg-box h2{font-size:1.2rem;margin-bottom:.3rem;background:linear-gradient(90deg,#ff6644,var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.reg-box p{font-size:.74rem;color:var(--muted);margin-bottom:1.2rem;}
+.reg-box label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:.2rem;margin-top:.7rem;}
+.reg-box input{width:100%;padding:.55rem .75rem;background:var(--card2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:.82rem;outline:none;transition:border-color .2s;}
+.reg-box input:focus{border-color:var(--blue);}
+.reg-box .err{color:var(--red);font-size:.68rem;margin-top:.2rem;min-height:1rem;}
+.reg-btn{margin-top:1.1rem;width:100%;padding:.6rem;background:linear-gradient(135deg,#ff6644,var(--amber));border:none;border-radius:8px;color:#fff;font-weight:700;font-size:.88rem;cursor:pointer;transition:opacity .2s;}
+.reg-btn:hover{opacity:.88;}
+
+.wrap{display:grid;grid-template-columns:1fr 240px;height:100vh;border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+
+/* EXAM */
+.ecol{padding:1.1rem 1.3rem;overflow-y:auto;max-height:100vh;background:var(--bg);}
+.prog-row{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-bottom:.3rem;}
+.prog-bg{background:var(--card2);border-radius:99px;height:4px;margin-bottom:1rem;}
+.prog-fill{height:4px;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--purple));transition:width .4s;}
+.tag{display:inline-block;font-size:.65rem;font-weight:700;padding:2px 9px;border-radius:99px;margin-bottom:.5rem;text-transform:uppercase;}
+.t1{background:rgba(34,197,94,.15);color:#4ade80;}
+.t2{background:rgba(59,130,246,.15);color:#60a5fa;}
+.t3{background:rgba(245,158,11,.15);color:#fbbf24;}
+.t4{background:rgba(168,85,247,.15);color:#c084fc;}
+.t5{background:rgba(239,68,68,.15);color:#f87171;}
+.t6{background:rgba(236,72,153,.15);color:#f472b6;}
+.qcard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;margin-bottom:.75rem;}
+.qnum{font-size:.68rem;color:var(--muted);margin-bottom:.2rem;}
+.qtxt{font-size:.84rem;font-weight:500;line-height:1.55;margin-bottom:.75rem;}
+pre{font-family:'Cascadia Code',monospace;font-size:.72rem;background:#080e1e;border:1px solid var(--border);border-radius:6px;padding:.55rem .8rem;overflow-x:auto;line-height:1.5;margin-bottom:.75rem;color:#93c5fd;white-space:pre;}
+.opts{display:flex;flex-direction:column;gap:6px;}
+.obtn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:.65rem .8rem;text-align:left;cursor:pointer;font-size:.82rem;color:var(--text);transition:border-color .15s;width:100%;line-height:1.4;min-height:48px;}
+.obtn:hover:not(:disabled){border-color:var(--blue);background:rgba(59,130,246,.08);}
+.obtn.correct{background:rgba(34,197,94,.12);border-color:var(--green);color:#4ade80;}
+.obtn.wrong{background:rgba(239,68,68,.12);border-color:var(--red);color:#f87171;}
+.obtn:disabled{cursor:default;}
+.expl{display:none;margin-top:.55rem;padding:.55rem .8rem;background:rgba(34,197,94,.07);border-left:3px solid var(--green);border-radius:0 5px 5px 0;font-size:.74rem;color:#86efac;line-height:1.5;}
+.expl.show{display:block;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;}
+.nbtn{background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:.5rem .9rem;font-size:.82rem;cursor:pointer;color:var(--text);min-height:44px;}
+.nbtn.pri{background:var(--blue);border-color:#1d4ed8;color:#fff;font-weight:600;}
+.nbtn:disabled{opacity:.3;cursor:default;}
+.ninfo{font-size:.68rem;color:var(--muted);}
+.fnum{font-size:2.6rem;font-weight:700;text-align:center;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.fsub{font-size:.75rem;color:var(--muted);text-align:center;margin:.3rem 0 .6rem;}
+.fbadge{display:inline-block;padding:.3rem .9rem;border-radius:99px;font-size:.75rem;font-weight:700;}
+.fa{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid var(--green);}
+.fb{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid var(--blue);}
+.fc{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid var(--amber);}
+.fd{background:rgba(239,68,68,.15);color:#f87171;border:1px solid var(--red);}
+.ri{background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:.5rem .75rem;margin-bottom:.35rem;font-size:.75rem;display:flex;gap:7px;align-items:flex-start;}
+.ric{width:15px;height:15px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.58rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+.rok{background:var(--green);color:#fff;}.rno{background:var(--red);color:#fff;}.rsk{background:var(--muted);color:#fff;}
+
+.dl-row{display:flex;gap:8px;margin-top:.7rem;flex-wrap:wrap;}
+.dl-btn{padding:.45rem .85rem;border-radius:7px;border:1px solid var(--border);background:var(--card2);color:var(--text);font-size:.74rem;cursor:pointer;font-weight:600;transition:all .2s;}
+.dl-btn:hover{border-color:#ff6644;background:rgba(255,102,68,.1);}
+.dl-btn.fire{background:rgba(245,158,11,.15);border-color:var(--amber);color:#fcd34d;}
+
+/* ROCKET PANEL */
+.rcol{background:#080d1c;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;}
+.rocket-scene{width:100%;flex:1;display:flex;align-items:center;justify-content:center;perspective:600px;min-height:380px;position:relative;overflow:hidden;}
+.stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.star{position:absolute;background:#fff;border-radius:50%;}
+.rocket-group{transform-style:preserve-3d;animation:spinY 6s linear infinite;position:relative;}
+@keyframes spinY{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+.rpart{position:absolute;transform-style:preserve-3d;transition:opacity .5s,transform .6s;}
+.rpart.hidden{opacity:.08;transform:translateY(-30px)!important;}
+.ant-stick{position:absolute;width:3px;height:22px;background:#aabbcc;border-radius:2px;left:50%;transform:translateX(-50%);top:-22px;}
+.ant-ball{position:absolute;width:8px;height:8px;border-radius:50%;background:#ff2200;box-shadow:0 0 6px #ff4400;left:50%;transform:translateX(-50%);top:-28px;}
+.nose{width:0;height:0;border-left:28px solid transparent;border-right:28px solid transparent;border-bottom:70px solid #cc3322;position:absolute;left:50%;transform:translateX(-50%);top:-70px;}
+.body-cyl{width:56px;height:130px;background:linear-gradient(90deg,#b0c8e8 0%,#d8eaf8 40%,#b0c8e8 100%);border-radius:4px;position:absolute;left:50%;transform:translateX(-50%);}
+.window-main{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle,#99ddff,#1a66aa);border:2px solid #60a5fa;position:absolute;left:50%;transform:translateX(-50%);top:28px;}
+.window-sm{width:13px;height:13px;border-radius:50%;background:radial-gradient(circle,#77ccff,#1a55aa);border:1.5px solid #60a5fa;position:absolute;left:50%;transform:translateX(-50%);top:60px;}
+.wing{position:absolute;width:0;height:0;top:80px;}
+.wing-l{border-right:36px solid #1a5fb0;border-top:20px solid transparent;border-bottom:36px solid transparent;left:-36px;}
+.wing-r{border-left:36px solid #1a5fb0;border-top:20px solid transparent;border-bottom:36px solid transparent;right:-36px;}
+.engine-body{width:52px;height:28px;background:linear-gradient(180deg,#556677,#334455);border-radius:0 0 6px 6px;position:absolute;left:50%;transform:translateX(-50%);top:130px;}
+.nozzle{width:38px;height:18px;background:linear-gradient(180deg,#445566,#223344);border-radius:0 0 8px 8px;position:absolute;left:50%;transform:translateX(-50%);top:154px;}
+.flames{position:absolute;left:50%;transform:translateX(-50%);top:170px;display:flex;gap:4px;}
+.flame{width:10px;border-radius:50% 50% 20% 20%;animation:flicker .4s ease-in-out infinite alternate;}
+.f1{height:28px;background:linear-gradient(#ffdd00,#ff6600,transparent);animation-delay:0s;}
+.f2{height:38px;background:linear-gradient(#ffee44,#ff4400,transparent);animation-delay:.1s;}
+.f3{height:22px;background:linear-gradient(#ffcc00,#ff8800,transparent);animation-delay:.2s;}
+.f4{height:32px;background:linear-gradient(#ffee55,#ff5500,transparent);animation-delay:.05s;}
+.f5{height:20px;background:linear-gradient(#ffdd22,#ff7700,transparent);animation-delay:.15s;}
+@keyframes flicker{from{transform:scaleY(1) scaleX(1);}to{transform:scaleY(1.18) scaleX(.88);}}
+.pad{width:90px;height:10px;background:linear-gradient(#2a4a7a,#1a3055);border-radius:3px;margin-top:10px;}
+.pad-legs{display:flex;justify-content:space-between;width:100px;margin-top:0;}
+.pad-leg{width:3px;height:20px;background:#1a3055;border-radius:2px;}
+.plist{width:100%;padding:.6rem .8rem;border-top:1px solid var(--border);}
+.ptitle{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+.pchip{display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:5px;border:1px solid var(--border);font-size:.65rem;color:var(--muted);background:var(--card);transition:all .3s;}
+.pchip.on{color:#4ade80;border-color:var(--green);background:rgba(34,197,94,.1);}
+.pdot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .3s;}
+.pchip.on .pdot{background:var(--green);}
+.sstrip{display:flex;justify-content:space-between;padding:.45rem .8rem;border-top:1px solid var(--border);font-size:.72rem;}
+.sstrip span{color:var(--muted);}.sstrip strong{color:var(--text);}
+.toast{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:.72rem;font-weight:700;padding:.3rem .9rem;border-radius:99px;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;z-index:10;}
+.toast.show{opacity:1;}
+.stu-info{font-size:.62rem;color:var(--muted);padding:.3rem .8rem;border-top:1px solid var(--border);text-align:center;width:100%;}
+
+@media (max-width: 600px), (display-mode: standalone) {
+  .wrap{grid-template-columns:1fr;grid-template-rows:1fr auto;}
+  .rcol{max-height:240px;}
+  .obtn{min-height:56px;font-size:.9rem;padding:.7rem 1rem;}
+  .nbtn{min-height:52px;font-size:.9rem;}
+  .reg-box{width:95vw;}
+  .reg-box input{min-height:48px;font-size:1rem;}
+  .reg-btn{min-height:52px;font-size:1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- REGISTRO -->
+<div class="reg-overlay" id="regOverlay">
+  <div class="reg-box">
+    <h2>Examen POO — Cohete 3D</h2>
+    <p>Completa tus datos para iniciar (5 preguntas aleatorias, nota máxima 5.0)</p>
+    <label>Código de estudiante</label>
+    <input type="text" id="regCodigo" placeholder="Ej: 20241234" autocomplete="off">
+    <label>Nombre</label>
+    <input type="text" id="regNombre" placeholder="Tu nombre">
+    <label>Apellido</label>
+    <input type="text" id="regApellido" placeholder="Tu apellido">
+    <div class="err" id="regErr"></div>
+    <button class="reg-btn" onclick="startExam()">Iniciar Examen</button>
+  </div>
+</div>
+
+<div style="position:relative;">
+<div class="toast" id="toast"></div>
+<div class="wrap">
+  <div class="ecol">
+    <div class="prog-row"><span id="plbl">Pregunta 1 de 5</span><span id="ppct">0%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="pbar" style="width:0%"></div></div>
+    <div id="qview"></div>
+    <div id="fview" style="display:none"></div>
+  </div>
+
+  <div class="rcol">
+    <div class="rocket-scene" id="scene">
+      <div class="stars" id="stars"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="rocket-group" id="rg" style="position:relative;width:56px;height:200px;margin-bottom:8px;">
+          <div class="rpart hidden" id="p-antenna" style="position:absolute;left:0;top:0;width:56px;"><div class="ant-stick"></div><div class="ant-ball"></div></div>
+          <div class="rpart hidden" id="p-nose" style="position:absolute;left:0;top:0;width:56px;"><div class="nose"></div></div>
+          <div class="rpart hidden" id="p-body" style="position:absolute;left:0;top:0;width:56px;"><div class="body-cyl"></div></div>
+          <div class="rpart hidden" id="p-windows" style="position:absolute;left:0;top:0;width:56px;"><div class="window-main"></div><div class="window-sm"></div></div>
+          <div class="rpart hidden" id="p-wings" style="position:absolute;left:0;top:0;width:56px;"><div class="wing wing-l"></div><div class="wing wing-r"></div></div>
+          <div class="rpart hidden" id="p-engine" style="position:absolute;left:0;top:0;width:56px;"><div class="engine-body"></div><div class="nozzle"></div></div>
+          <div class="rpart hidden" id="p-flames" style="position:absolute;left:0;top:0;width:56px;"><div class="flames"><div class="flame f1"></div><div class="flame f2"></div><div class="flame f3"></div><div class="flame f4"></div><div class="flame f5"></div></div></div>
+        </div>
+        <div class="pad-legs"><div class="pad-leg"></div><div class="pad-leg"></div><div class="pad-leg"></div></div>
+        <div class="pad"></div>
+      </div>
+    </div>
+    <div class="plist">
+      <div class="ptitle">Piezas ensambladas</div>
+      <div class="pgrid" id="pchips"></div>
+    </div>
+    <div class="sstrip"><span>Correctas:</span><strong id="scorenum">0 / 5</strong></div>
+    <div class="stu-info" id="stuInfo"></div>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){const s=document.getElementById('stars');for(let i=0;i<60;i++){const d=document.createElement('div');d.className='star';const sz=Math.random()*2+.5;d.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;opacity:'+(Math.random()*.8+.2);s.appendChild(d);}})();
+
+const FB_URL='https://parcial-9f9b4-default-rtdb.europe-west1.firebasedatabase.app';
+let STU={codigo:'',nombre:'',apellido:''};
+
+function startExam(){
+  const c=document.getElementById('regCodigo').value.trim();
+  const n=document.getElementById('regNombre').value.trim();
+  const a=document.getElementById('regApellido').value.trim();
+  if(!c||!n||!a){document.getElementById('regErr').textContent='Completa todos los campos';return;}
+  STU={codigo:c,nombre:n,apellido:a};
+  document.getElementById('regOverlay').classList.add('hide');
+  document.getElementById('stuInfo').textContent=STU.codigo+' — '+STU.nombre+' '+STU.apellido;
+  initQuiz();
+}
+
+const BANK=[
+  // GET / SET
+  {tag:"get / set",tc:"t1",
+   text:"¿Cuál es el propósito principal de los métodos get y set en POO?",
+   opts:['Reemplazar constructor y destructor','Permitir acceso controlado a atributos privados','Eliminar atributos innecesarios','Llamar funciones de otras clases'],
+   ok:1,expl:'get/set implementan encapsulamiento: acceso controlado a atributos privados.'},
+  {tag:"get / set",tc:"t1",
+   text:"¿Es correcto este setter? ¿Por qué?",
+   code:'void setEdad(int e) {\n    if (e > 0 && e < 130)\n        edad = e;\n}',
+   opts:['No, setters no deben tener condiciones','Sí: valida antes de asignar','No, porque no retorna valor','Sí, pero debería ser estático'],
+   ok:1,expl:'Setter con validación: si no cumple condición, no asigna.'},
+  {tag:"get / set",tc:"t1",
+   text:"¿Qué imprime este código con validación de setter?",
+   code:'class Cohete {\n    int combustible;\npublic:\n    Cohete(int c){combustible=c;}\n    void setCombustible(int c){if(c>0)combustible=c;}\n    int getCombustible(){return combustible;}\n};\nint main(){\n    Cohete r(1500);\n    r.setCombustible(-200);\n    cout<<r.getCombustible();\n}',
+   opts:['-200','1500','Error de compilación','0'],
+   ok:1,expl:'El setter valida c>0. -200 no cumple, queda en 1500.'},
+
+  // CONSTRUCTOR
+  {tag:"Constructor vacío",tc:"t2",
+   text:"¿Qué es un constructor vacío (por defecto) en C++?",
+   opts:['Elimina todos los atributos','Sin parámetros, inicializa con valores predeterminados','Solo acepta valores nulos','Se llama al destruir el objeto'],
+   ok:1,expl:'Constructor por defecto: sin parámetros, inicializa atributos a 0, etc.'},
+  {tag:"Constructor parámetros",tc:"t2",
+   text:"¿Cuántos constructores puede tener una clase C++?",
+   code:'class Cohete {\npublic:\n    Cohete();\n    Cohete(int c);\n    Cohete(int c, float a);\n};',
+   opts:['Solo uno','Máximo dos','Múltiples con firmas distintas (sobrecarga)','Ilimitados con mismos parámetros'],
+   ok:2,expl:'Sobrecarga: varios constructores con distinto número/tipo de parámetros.'},
+  {tag:"Constructor parámetros",tc:"t2",
+   text:"¿Cuál es el error en este constructor?",
+   code:'Cohete(int c, float a) {\n    c = combustible;\n    a = altitud;\n}',
+   opts:['No puede recibir float','Asignación invertida: debe ser combustible=c; altitud=a;','Debería ser private','Falta tipo de retorno'],
+   ok:1,expl:'La asignación está al revés. Correcto: combustible=c; altitud=a;'},
+
+  // FUNCIONES DE VALOR
+  {tag:"Función de valor",tc:"t3",
+   text:"¿Cómo se diferencia una función que retorna valor de una void?",
+   opts:['La de valor modifica atributos; void solo lee','La de valor retorna dato con return; void no retorna','No hay diferencia','void es más rápida'],
+   ok:1,expl:'Función de valor declara tipo de retorno y usa return. void no devuelve.'},
+  {tag:"Función de valor",tc:"t3",
+   text:"¿Qué salida produce este código?",
+   code:'float empuje(float masa, float acel) {\n    return masa * acel;\n}\ncout << empuje(500, 9.8);',
+   opts:['509.8','4900','500','Error'],
+   ok:1,expl:'Empuje = 500 × 9.8 = 4900.'},
+
+  // STRUCT
+  {tag:"Struct",tc:"t4",
+   text:"¿Cuál es la diferencia principal entre struct y class en C++?",
+   opts:['struct no puede tener funciones','En struct miembros son public por defecto; en class, private','struct es solo datos simples','No hay diferencia'],
+   ok:1,expl:'Única diferencia: visibilidad por defecto. struct=public, class=private.'},
+  {tag:"Struct",tc:"t4",
+   text:"¿Qué imprime este código?",
+   code:'struct Punto { float x, y; };\nPunto p1 = {3.0, 4.0};\nPunto p2 = p1;\np2.x = 10.0;\ncout << p1.x;',
+   opts:['10.0','3.0','Error','0'],
+   ok:1,expl:'Structs se copian por valor. p2 es independiente; modificarla no afecta p1.'},
+
+  // MATRICES
+  {tag:"Matrices",tc:"t5",
+   text:"¿Cómo se declara una matriz de 3×4 enteros como atributo de clase?",
+   opts:['int matriz[3,4];','int matriz[3][4];','int[3][4] matriz;','array<int,3,4> matriz;'],
+   ok:1,expl:'Matrices C++: int matriz[filas][columnas];'},
+  {tag:"Matrices",tc:"t5",
+   text:"¿Qué imprime este código?",
+   code:'int m[2][2] = {{1,2},{3,4}};\nint suma = 0;\nfor(int i=0;i<2;i++)\n    for(int j=0;j<2;j++)\n        suma += m[i][j];\ncout << suma;',
+   opts:['44','10','1234','Error'],
+   ok:1,expl:'Doble for recorre todos: 1+2+3+4 = 10.'},
+  {tag:"Matrices",tc:"t5",
+   text:"En una matriz de sensores[4][60], ¿cómo se accede al sensor 3 (idx 2), segundo 30 (idx 29)?",
+   opts:['sensores[29][2]','sensores[2][29]','sensores[3][30]','sensores(2,29)'],
+   ok:1,expl:'Fila = sensor (2), columna = segundo (29): sensores[2][29].'},
+
+  // ARCHIVOS .h / .cpp
+  {tag:"Archivos .h",tc:"t6",
+   text:"¿Cuál es el propósito de un archivo .h (header) en C++?",
+   opts:['Solo variables globales','Declarar la interfaz (atributos y prototipos)','Contener implementación completa','Reemplazar al .cpp'],
+   ok:1,expl:'El .h declara la interfaz. Implementación va en .cpp.'},
+  {tag:"Archivos .h",tc:"t6",
+   text:"¿Qué es un include guard y para qué sirve?",
+   code:'#ifndef COHETE_H\n#define COHETE_H\nclass Cohete { };\n#endif',
+   opts:['Evita modificaciones accidentales','Evita que el header sea incluido más de una vez','Hace el header privado','Optimiza la compilación'],
+   ok:1,expl:'Include guard previene inclusiones múltiples del mismo header.'},
+  {tag:"Archivos .h",tc:"t6",
+   text:"¿Cómo se define un método fuera de la clase en el .cpp?",
+   code:'// Cohete.h\nclass Cohete {\n    int combustible;\npublic:\n    int getCombustible();\n};',
+   opts:['int getCombustible() { return combustible; }','int Cohete::getCombustible() { return combustible; }','Cohete.int getCombustible() { return combustible; }','class Cohete { int getCombustible(){...} };'],
+   ok:1,expl:'Operador :: para indicar clase: int Cohete::getCombustible()'},
+];
+
+const PARTS=[
+  {id:'p-flames', label:'Llamas',   qIdx:0},
+  {id:'p-engine', label:'Motor',    qIdx:1},
+  {id:'p-wings',  label:'Aletas',   qIdx:2},
+  {id:'p-body',   label:'Fuselaje', qIdx:3},
+  {id:'p-nose',   label:'Cono',     qIdx:4},
+];
+
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+let Qs=[],cur=0,answers=[],N=5;
+
+function initQuiz(){
+  Qs=shuffle(BANK).slice(0,5);cur=0;answers=new Array(5).fill(null);
+  const pg=document.getElementById('pchips');pg.innerHTML='';
+  PARTS.forEach(p=>{const d=document.createElement('div');d.className='pchip';d.id='chip-'+p.id;d.innerHTML='<div class="pdot"></div><span>'+p.label+'</span>';pg.appendChild(d);});
+  render();
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function unlockPart(id,label){
+  const el=document.getElementById(id);if(el)el.classList.remove('hidden');
+  const chip=document.getElementById('chip-'+id);if(chip)chip.classList.add('on');
+  const t=document.getElementById('toast');t.textContent='+ '+label+' ensamblada';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function render(){
+  const pct=Math.round((cur/N)*100);
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('ppct').textContent=pct+'%';
+  document.getElementById('plbl').textContent='Pregunta '+(cur+1)+' de '+N;
+  const q=Qs[cur],ans=answers[cur];
+  const code=q.code?'<pre>'+esc(q.code)+'</pre>':'';
+  const opts=q.opts.map((o,i)=>{
+    let c='obtn';if(ans!==null){if(i===q.ok)c+=' correct';else if(i===ans)c+=' wrong';}
+    return '<button class="'+c+'" onclick="pick('+i+')" '+(ans!==null?'disabled':'')+'>'+esc(o)+'</button>';
+  }).join('');
+  document.getElementById('qview').innerHTML=
+    '<div class="qcard"><div class="qnum">Pregunta '+(cur+1)+'</div><span class="tag '+q.tc+'">'+q.tag+'</span><div class="qtxt">'+q.text+'</div>'+code
+    +'<div class="opts">'+opts+'</div><div class="expl'+(ans!==null?' show':'')+'">'+( ans!==null?q.expl:'')+'</div></div>'
+    +'<div class="nav"><button class="nbtn" onclick="go('+(cur-1)+')" '+(cur===0?'disabled':'')+'>← Ant</button><span class="ninfo">'+(cur+1)+'/'+N+'</span>'
+    +(cur<N-1?'<button class="nbtn pri" onclick="go('+(cur+1)+')">Sig →</button>':'<button class="nbtn pri" onclick="showFinal()">Resultado →</button>')+'</div>';
+}
+
+function pick(i){
+  if(answers[cur]!==null)return;answers[cur]=i;render();
+  const c=answers.filter((a,j)=>a===Qs[j].ok).length;
+  document.getElementById('scorenum').textContent=c+' / '+N;
+  if(i===Qs[cur].ok){const p=PARTS.find(p=>p.qIdx===cur);if(p)unlockPart(p.id,p.label);}
+}
+
+function go(n){if(n>=0&&n<N){cur=n;render();}}
+
+function showFinal(){
+  const c=answers.filter((a,i)=>a===Qs[i].ok).length;
+  const skip=answers.filter(a=>a===null).length;
+  const nota=(c/N*5).toFixed(1);const pct=Math.round((c/N)*100);
+  let bc='fd',bt='Necesitas repasar';
+  if(pct>=90){bc='fa';bt='¡Excelente!';}else if(pct>=75){bc='fb';bt='Bien hecho';}else if(pct>=60){bc='fc';bt='Regular';}
+  if(c===N)PARTS.forEach(p=>unlockPart(p.id,p.label));
+  const rev=Qs.map((q,i)=>{const a=answers[i];let ic,cl,st;if(a===null){ic='–';cl='rsk';st='Sin responder';}else if(a===q.ok){ic='✓';cl='rok';st='Correcto';}else{ic='✗';cl='rno';st='Correcta: '+q.opts[q.ok];}return '<div class="ri"><div class="ric '+cl+'">'+ic+'</div><div><b>P'+(i+1)+'.</b> '+q.text.substring(0,50)+'...<br><span style="color:var(--muted);font-size:.7rem">'+st+'</span></div></div>';}).join('');
+  document.getElementById('pbar').style.width='100%';document.getElementById('ppct').textContent='100%';document.getElementById('plbl').textContent='Completado';
+  document.getElementById('qview').style.display='none';document.getElementById('fview').style.display='block';
+  document.getElementById('fview').innerHTML=
+    '<div class="qcard"><div class="fnum">'+nota+'/5.0</div><div class="fsub">'+c+' correctas · '+(N-c-skip)+' incorrectas · '+skip+' sin responder — Nota: '+nota+'</div>'
+    +'<div style="text-align:center"><span class="fbadge '+bc+'">'+bt+' · '+pct+'%</span></div>'
+    +'<div class="dl-row"><button class="dl-btn fire" onclick="saveFirebase()">Guardar en Firebase</button><button class="dl-btn" onclick="downloadCSV()">Descargar CSV</button><button class="dl-btn" onclick="restart()">Reintentar</button></div>'
+    +'<div style="margin-top:.8rem">'+rev+'</div></div>';
+  saveFirebase();
+}
+
+function saveFirebase(){
+  const c=answers.filter((a,i)=>a===Qs[i].ok).length;const nota=(c/N*5).toFixed(1);
+  const payload={codigo:STU.codigo,nombre:STU.nombre,apellido:STU.apellido,examen:'Cohete_3D',correctas:c,total:N,nota:parseFloat(nota),fecha:new Date().toISOString(),
+    preguntas:Qs.map((q,i)=>({pregunta:q.text,tema:q.tag,respuesta:answers[i]!==null?q.opts[answers[i]]:'Sin responder',correcto:answers[i]===q.ok}))};
+  fetch(FB_URL+'/examenes_cohete/'+STU.codigo+'_'+Date.now()+'.json',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+  .then(r=>{if(r.ok){const t=document.getElementById('toast');t.textContent='✓ Guardado en Firebase';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}})
+  .catch(e=>console.error('Firebase error:',e));
+}
+
+function downloadCSV(){
+  const c=answers.filter((a,i)=>a===Qs[i].ok).length;const nota=(c/N*5).toFixed(1);
+  let csv='Codigo,Nombre,Apellido,Examen,Pregunta,Tema,Respuesta,Correcto,Nota\n';
+  Qs.forEach((q,i)=>{const resp=answers[i]!==null?q.opts[answers[i]].replace(/,/g,';'):'Sin responder';const ok=answers[i]===q.ok?'SI':'NO';
+    csv+=STU.codigo+','+STU.nombre+','+STU.apellido+',Cohete_3D,"'+q.text.replace(/"/g,"'")+'",'+q.tag+',"'+resp+'",'+ok+','+nota+'\n';});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='examen_cohete_'+STU.codigo+'.csv';a.click();URL.revokeObjectURL(url);
+}
+
+function restart(){
+  document.getElementById('qview').style.display='block';document.getElementById('fview').style.display='none';
+  document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('.rpart').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('scorenum').textContent='0 / '+N;
+  Qs=shuffle(BANK).slice(0,5);cur=0;answers=new Array(5).fill(null);render();
+}
+</script>
+</body>
+</html>
